@@ -1,0 +1,88 @@
+%geo-indicator {
+  border-radius: 100px;
+  height: 12px;
+  width: 12px;
+}
+
+.geo-indicator-yes {
+  @extend %geo-indicator;
+
+  background: rgb(0, 239, 0);
+}
+
+.geo-indicator-no {
+  @extend %geo-indicator;
+
+  background: rgb(239, 0, 0);
+}
+
+.route-list {
+  border: 1px solid rgb(214, 214, 214);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+
+  &.empty {
+    align-items: center;
+    color: rgb(214, 214, 214);
+    height: 100px;
+    justify-content: center;
+  }
+}
+
+.route-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  .route-item-drag-button {
+    all: unset;
+    width: 15px;
+    text-align: center;
+
+    &[data-focus-visible] {
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px red;
+    }
+  }
+
+  .route-item-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .route-item-name {
+  }
+
+  .route-item-address {
+    color: #ababab;
+    font-size: 13px;
+  }
+
+  .route-item-delete-button {
+    margin-left: auto;
+  }
+
+  &.current-location {
+    color: gray;
+    justify-content: unset;
+
+    .route-item-current-toggle {
+      display: block;
+    }
+  }
+}
+
+.route-item-drag-preview {
+}
+
+.current-location-input {
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  margin-left: 20px;
+  padding: 10px;
+  width: 100%;
+}
