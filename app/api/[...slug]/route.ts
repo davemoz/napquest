@@ -5,8 +5,9 @@ const MATRIX_API_URL =
 
 export async function POST(
   request: Request,
-  { params: { slug } }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string[] }> }
 ) {
+  const { slug } = await params;
   switch (slug[0]) {
     case "directions-matrix":
       try {
