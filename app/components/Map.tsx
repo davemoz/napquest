@@ -14,7 +14,7 @@ const Map = ({
   sidebarClassName: string;
 }) => {
   const mapRef = useRef(null);
-  const [map, curPos] = getMapboxGL(mapRef);
+  const { map, curPos } = getMapboxGL(mapRef);
   return (
     <>
       <div className={mapClassName} ref={mapRef} />

@@ -2,18 +2,22 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Spinner } from "@chakra-ui/react";
-import { SearchBox } from "@mapbox/search-js-react";
-
 import DragAndDropRoutes from "./DragAndDropRoutes";
 import getMapboxMatrix, { MapboxMatrixType } from "@/lib/getMapboxMatrix";
-
 import {
-  SearchBoxRetrieveResponse,
   SearchBoxFeatureSuggestion,
+  SearchBoxRetrieveResponse,
 } from "@mapbox/search-js-core";
+import { Marker } from "mapbox-gl";
+
+import dynamic from "next/dynamic";
+
+const SearchBox = dynamic(
+  () => import("@mapbox/search-js-react").then((mod) => mod.SearchBox),
+  { ssr: false }
+);
 
 import styles from "./DirectionsForm.module.scss";
-import { Marker } from "mapbox-gl";
 
 type DestinationType = {
   name: string;
@@ -26,7 +30,7 @@ export default function DirectionsForm({
   curPos,
 }: {
   map: any;
-  curPos: number[];
+  curPos?: number[];
 }) {
   const [route, setRoute] = useState<SearchBoxFeatureSuggestion[]>([]);
   const routeCoords = useMemo(
@@ -68,11 +72,8 @@ export default function DirectionsForm({
         <div className={styles.directions}>
           Enter a destination below to begin your nap planning.
         </div>
-        {/* @ts-ignore */}
         <SearchBox
-          // @ts-ignore
-          accessToken={process.env.NEXT_PUBLIC_MAP_BOX_API_KEY}
-          className={styles.search}
+          accessToken={process.env.NEXT_PUBLIC_MAP_BOX_API_KEY!}
           map={map}
           onRetrieve={handleRetrieve}
           placeholder="Where would you like to go?"

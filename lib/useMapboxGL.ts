@@ -1,19 +1,20 @@
-import { MutableRefObject, useEffect, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
+import { Map } from "mapbox-gl";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAP_BOX_API_KEY;
 
 export default function useMapboxGL(
-  containerRef?: MutableRefObject<null> | undefined
+  containerRef?: RefObject<null> | undefined
 ) {
-  const [map, setMap] = useState<Map | undefined>();
+  const mapInstanceRef = useRef<Map | null>(null);
   const [curPos, setCurPos] = useState<number[] | undefined>();
 
   useEffect(() => {
-    let mapGL;
-    if (containerRef) {
-      mapGL = new mapboxgl.Map({
-        container: containerRef.current,
+    const container = containerRef?.current;
+    if (container) {
+      mapInstanceRef.current = new mapboxgl.Map({
+        container: container,
         style: "mapbox://styles/mapbox/navigation-night-v1", // see: https://docs.mapbox.com/api/maps/styles/#classic-mapbox-styles
         zoom: 1,
       });
@@ -26,14 +27,17 @@ export default function useMapboxGL(
         trackUserLocation: true,
         // showUserHeading: true,
       });
-      mapGL.addControl(geolocate);
-      geolocate.on("geolocate", (data: GeolocationPosition) => {
-        setCurPos([data.coords.longitude, data.coords.latitude]);
-      });
 
-      mapGL.on("load", () => {
-        geolocate.trigger();
-      });
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.addControl(geolocate);
+        geolocate.on("geolocate", (data: GeolocationPosition) => {
+          setCurPos([data.coords.longitude, data.coords.latitude]);
+        });
+
+        mapInstanceRef.current.on("load", () => {
+          geolocate.trigger();
+        });
+      }
 
       // change cursor to pointer when user hovers over a clickable feature
       // map.on("mouseenter", (e) => {
@@ -46,14 +50,13 @@ export default function useMapboxGL(
       // map.on("mouseleave", () => {
       //   map.getCanvas().style.cursor = "";
       // });
-      setMap(mapGL);
     }
 
     // Clean up on unmount
     return () => {
-      if (mapGL) mapGL.remove();
+      if (mapInstanceRef.current) mapInstanceRef.current.remove();
     };
   }, [containerRef]);
 
-  return [map, curPos];
+  return { map: mapInstanceRef, curPos };
 }
