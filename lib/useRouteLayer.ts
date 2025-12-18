@@ -65,44 +65,26 @@ export default function useRouteLayer(
             "case",
             ["get", "isSelected"],
             "#ff7644", // Selected color
-            "#cccccc", // Alternative color
+            "#60a5fa", // Alternative color (Blue)
           ],
-          "line-width": [
-            "case",
-            ["get", "isSelected"],
-            5, // Selected width
-            20, // Alternative width (invisible hit area, visual width controlled by opacity/color effectively, but actually we want visible width to be similar, maybe slightly thicker for hit target?)
-            // Actually, let's keep it simple. Standard width.
-            // If we want easier clicking, we might need a separate transparent wide layer.
-            // For now, let's just make the unselected ones 7px wide but visually same color logic?
-            // Wait, the previous logic was:
-            // Selected: 5
-            // Alternative: 4
-            // Let's stick to that, maybe bump a bit for easier clicking?
-          ],
+          "line-width": 6,
           "line-opacity": [
             "case",
             ["get", "isSelected"],
             1, // Selected opacity
-            0.6, // Alternative opacity
+            0.5, // Alternative opacity
           ],
         },
       });
-
-      // Add interactions
-      map.on("mouseenter", "route", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-
-      map.on("mouseleave", "route", () => {
-        map.getCanvas().style.cursor = "";
-      });
     }
 
-    // We need to update the listener if the callback changes or ensure it's robust
-    // Mapbox listeners are persistent. We should define the handler outside or remove/add.
-    // Simplest way is to remove old one and add new one, but that's messy with anonymous functions.
-    // Let's define a named handler inside the effect.
+    const handleMouseEnter = () => {
+      map.getCanvas().style.cursor = "pointer";
+    };
+
+    const handleMouseLeave = () => {
+      map.getCanvas().style.cursor = "";
+    };
 
     const handleClick = (e: any) => {
       if (e.features && e.features.length > 0) {
@@ -113,13 +95,14 @@ export default function useRouteLayer(
       }
     };
 
+    map.on("mouseenter", "route", handleMouseEnter);
+    map.on("mouseleave", "route", handleMouseLeave);
     map.on("click", "route", handleClick);
 
     return () => {
+      map.off("mouseenter", "route", handleMouseEnter);
+      map.off("mouseleave", "route", handleMouseLeave);
       map.off("click", "route", handleClick);
-      // We don't strictly need to remove mouseenter/leave every time if layer persists,
-      // but strictly we should.
-      // For now, focusing on click.
     };
   }, [map, routeData, selectedRouteIndex, onRouteSelect]);
 }

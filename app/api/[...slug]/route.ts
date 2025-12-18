@@ -14,8 +14,10 @@ export async function POST(
     case "directions-matrix":
       try {
         const coords = await request.text();
+        const token =
+          process.env.MAPBOX_SECRET_TOKEN || process.env.MAP_BOX_API_KEY;
         const res = await fetch(
-          `${MATRIX_API_URL}/${coords}?access_token=${process.env.MAP_BOX_API_KEY}`
+          `${MATRIX_API_URL}/${coords}?access_token=${token}`
         );
         if (res.ok) {
           const json = await res.json();
@@ -32,8 +34,10 @@ export async function POST(
     case "directions":
       try {
         const coords = await request.text();
+        const token =
+          process.env.MAPBOX_SECRET_TOKEN || process.env.MAP_BOX_API_KEY;
         // We request geojson geometries and alternatives=true (for later Phases)
-        const query = `geometries=geojson&overview=full&alternatives=true&access_token=${process.env.MAP_BOX_API_KEY}`;
+        const query = `geometries=geojson&overview=full&alternatives=true&access_token=${token}`;
         const res = await fetch(`${DIRECTIONS_API_URL}/${coords}?${query}`);
         if (res.ok) {
           const json = await res.json();
