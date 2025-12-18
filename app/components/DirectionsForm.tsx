@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Spinner } from "@chakra-ui/react";
 import DragAndDropRoutes from "./DragAndDropRoutes";
+import NavigationMode from "./NavigationMode";
 
 import getMapboxDirections from "@/lib/getMapboxDirections";
 import useRouteLayer from "@/lib/useRouteLayer";
@@ -35,6 +36,7 @@ export default function DirectionsForm({
   >();
   const [route, setRoute] = useState<SearchBoxFeatureSuggestion[]>([]);
   const [targetDuration, setTargetDuration] = useState<number>(30);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const routeCoords = useMemo(() => {
     const startCoords = manualStart?.geometry.coordinates || curPos;
@@ -99,7 +101,11 @@ export default function DirectionsForm({
   const isExceedingTarget = actualDurationMinutes > targetDuration;
 
   // Visualize Route
-  useRouteLayer(map.current, routeData, selectedRouteIndex);
+  useRouteLayer(map.current, routeData, selectedRouteIndex, (index) => {
+    if (!isNavigating) {
+      setSelectedRouteIndex(index);
+    }
+  });
 
   // Auto-fit map viewport to show entire route (focus on selected)
   // We now fit ALL routes, with padding for the UI sidebar.
@@ -144,8 +150,19 @@ export default function DirectionsForm({
     setRoute(reorderedRoute);
   };
 
+  const selectedRoute = routeData?.routes?.[selectedRouteIndex];
+
+  if (isNavigating && selectedRoute) {
+    return (
+      <NavigationMode
+        route={selectedRoute}
+        onExit={() => setIsNavigating(false)}
+      />
+    );
+  }
+
   return (
-    <>
+    <div className={styles["planning-container"]}>
       <form className={styles.form}>
         <SearchBox
           accessToken={process.env.MAP_BOX_API_KEY!}
@@ -202,6 +219,28 @@ export default function DirectionsForm({
         selectedRouteIndex={selectedRouteIndex}
         onRouteSelect={setSelectedRouteIndex}
       />
-    </>
+
+      {selectedRoute && (
+        <div style={{ marginTop: 24, padding: "0 8px 20px" }}>
+          <button
+            onClick={() => setIsNavigating(true)}
+            style={{
+              width: "100%",
+              padding: "12px",
+              background: "#000",
+              color: "#fff",
+              border: "none",
+              borderRadius: "12px",
+              fontSize: "16px",
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
+            }}
+          >
+            Start Driving 🚗
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

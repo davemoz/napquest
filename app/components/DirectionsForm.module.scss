@@ -12,6 +12,28 @@
   color: #ef4444;
 }
 
+.planning-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* Add padding-right to avoid scrollbar overlapping content if needed */
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 20px;
+  }
+}
+
 .directions {
   padding-bottom: 24px;
 }

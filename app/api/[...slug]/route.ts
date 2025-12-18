@@ -37,7 +37,7 @@ export async function POST(
         const token =
           process.env.MAPBOX_SECRET_TOKEN || process.env.MAP_BOX_API_KEY;
         // We request geojson geometries and alternatives=true (for later Phases)
-        const query = `geometries=geojson&overview=full&alternatives=true&access_token=${token}`;
+        const query = `geometries=geojson&overview=full&alternatives=true&steps=true&banner_instructions=true&access_token=${token}`;
         const res = await fetch(`${DIRECTIONS_API_URL}/${coords}?${query}`);
         if (res.ok) {
           const json = await res.json();
