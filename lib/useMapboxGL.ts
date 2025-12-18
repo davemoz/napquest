@@ -2,7 +2,7 @@ import { RefObject, useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { Map } from "mapbox-gl";
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAP_BOX_API_KEY;
+mapboxgl.accessToken = process.env.MAP_BOX_API_KEY;
 
 export default function useMapboxGL(
   containerRef?: RefObject<null> | undefined

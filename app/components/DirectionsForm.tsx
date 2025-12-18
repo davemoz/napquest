@@ -46,42 +46,42 @@ export default function DirectionsForm({
     return [validStart, ...destCoords];
   }, [manualStart, curPos, route]);
 
+  const [allDirections, setAllDirections] = useState<any>();
   const [routeData, setRouteData] = useState<any>();
 
+  // Fetch all directions (with alternatives) when coordinates change
   useEffect(() => {
     if (routeCoords.length < 2) return;
     const doFetch = async () => {
-      // Fetch Directions (Geometry)
       const directionsResponse = await getMapboxDirections(
         routeCoords as [number, number][]
       );
-
-      // If directionsResponse contains routes (it should be the full JSON response from our API proxy which returns res.json())
-      // Our API proxy returns the full Mapbox response object: { routes: [], ... }
-      if (directionsResponse && directionsResponse.routes) {
-        const bestRoute = findBestRoute(
-          directionsResponse.routes,
-          targetDuration
-        );
-        // We need to shape this like the expected GeoJSON feature for useRouteLayer??
-        // useRouteLayer expects: { type: 'Feature', geometry: ... } OR the raw route object?
-        // getMapboxDirections previously returned the response.json().
-        // useRouteLayer handles the route object specifically?
-        // Let's check useRouteLayer.ts.
-        // It does: const geometry = routeData.routes[0].geometry;
-        // So it expects the FULL response object.
-
-        // We will construct a fake response object containing ONLY the best route to trick useRouteLayer
-        // so it renders that specific one.
-        if (bestRoute) {
-          setRouteData({ ...directionsResponse, routes: [bestRoute] });
-        } else {
-          setRouteData(directionsResponse);
-        }
-      }
+      setAllDirections(directionsResponse);
     };
     doFetch();
-  }, [routeCoords, targetDuration]); // Re-run when target duration changes
+  }, [routeCoords]);
+
+  // Select best route and check for warnings whenever allDirections OR targetDuration changes
+  useEffect(() => {
+    if (allDirections && allDirections.routes) {
+      const bestRoute = findBestRoute(allDirections.routes, targetDuration);
+
+      if (bestRoute) {
+        setRouteData({ ...allDirections, routes: [bestRoute] });
+      } else {
+        setRouteData(allDirections);
+      }
+    } else {
+      setRouteData(null);
+    }
+  }, [allDirections, targetDuration]);
+
+  const actualDurationMinutes = useMemo(() => {
+    if (!routeData?.routes?.[0]) return 0;
+    return Math.round(routeData.routes[0].duration / 60);
+  }, [routeData]);
+
+  const isExceedingTarget = actualDurationMinutes > targetDuration;
 
   // Visualize Route
   useRouteLayer(map.current, routeData);
@@ -126,6 +126,15 @@ export default function DirectionsForm({
           map={map.current}
           onRetrieve={handleRetrieve}
           placeholder="Where would you like to go?"
+          theme={{
+            variables: {
+              unit: "var(--searchbox-unit)",
+              borderRadius: "var(--searchbox-borderRadius)",
+              border: "var(--searchbox-border)",
+              boxShadow: "var(--searchbox-boxShadow)",
+              padding: "var(--searchbox-padding)",
+            },
+          }}
         />
 
         <div className={styles["slider-container"]}>
@@ -140,11 +149,27 @@ export default function DirectionsForm({
           />
           <div className={styles["slider-values"]}>
             <span>0 min</span>
-            <span className={styles["current-value"]}>
-              {targetDuration} min
-            </span>
+            <div className={styles["duration-display"]}>
+              <span className={styles["current-value"]}>
+                Target: {targetDuration} min
+              </span>
+              {routeData && (
+                <span
+                  className={`${styles["actual-duration"]} ${
+                    isExceedingTarget ? styles["exceeds"] : ""
+                  }`}
+                >
+                  Actual: {actualDurationMinutes} min
+                </span>
+              )}
+            </div>
             <span>120 min</span>
           </div>
+          {isExceedingTarget && (
+            <div className={styles["warning-message"]}>
+              ⚠️ Route is longer than target duration
+            </div>
+          )}
         </div>
       </form>
       <DragAndDropRoutes

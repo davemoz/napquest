@@ -210,10 +210,11 @@ const CurrentLocationOptionalInput = ({
           value={manualStart ? manualStart.properties.name : ""}
           theme={{
             variables: {
-              unit: "15px",
-              padding: "0.2em",
-              borderRadius: "0px",
-              boxShadow: "none",
+              unit: "var(--searchbox-unit)",
+              padding: "var(--searchbox-padding)",
+              borderRadius: "var(--searchbox-border-radius)",
+              border: "var(--searchbox-border)",
+              boxShadow: "var(--searchbox-box-shadow)",
             },
           }}
         />

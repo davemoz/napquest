@@ -45,9 +45,9 @@ export default function useRouteLayer(
           "line-cap": "round",
         },
         paint: {
-          "line-color": "#be5c38ff",
+          "line-color": "#ff7644",
           "line-width": 5,
-          "line-opacity": 0.75,
+          "line-opacity": 1,
         },
       });
     }

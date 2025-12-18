@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect' next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "dotenvx run -- NODE_OPTIONS='--inspect' next dev",
+    "build": "dotenvx run -- next build",
+    "start": "dotenvx run -- next start",
+    "lint": "dotenvx run -- next lint"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
@@ -14,6 +14,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@dotenvx/dotenvx": "^1.51.2",
     "@emotion/react": "^11.14.0",
     "@mapbox/search-js-core": "^1.5.1",
     "@mapbox/search-js-react": "^1.5.1",
