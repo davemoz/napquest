@@ -57,6 +57,15 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 
   &:hover {
+    cursor: grab;
+    border-color: #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    transform: translateY(-2px);
+  }
+
+  &[aria-pressed="true"] {
+    cursor: grabbing;
     border-color: #e5e7eb;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
       0 4px 6px -2px rgba(0, 0, 0, 0.02);
@@ -68,15 +77,15 @@
     content: "";
     position: absolute;
     left: -26px;
-    border-left: 2px dashed #e5e7eb;
+    border-left: 2px dotted #e5e7eb;
     width: 20px;
   }
 
   &:first-child {
     &::before {
-      height: 50%;
-      top: 50%;
-      border-top: 2px dashed #e5e7eb;
+      height: calc(50% + 8px);
+      bottom: -8px;
+      border-top: 2px dotted #e5e7eb;
       border-top-left-radius: 12px;
     }
   }
@@ -90,9 +99,9 @@
 
   &:last-child:not(:first-child) {
     &::before {
-      height: 50%;
-      top: 0;
-      border-bottom: 2px dashed #e5e7eb;
+      height: calc(50% + 8px);
+      top: -8px;
+      border-bottom: 2px dotted #e5e7eb;
       border-bottom-left-radius: 12px;
     }
   }
@@ -171,4 +180,65 @@
     --mapboxsearch-unit: 13px;
     --mapboxsearch-border-radius: 6px;
   }
+}
+
+.actual-duration {
+  align-items: center;
+  background: #e4fdff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 24px;
+  padding: 12px;
+
+  .actual-duration-value {
+    color: #22c55e;
+    display: block;
+  }
+
+  &.exceeds {
+    color: #ef4444;
+  }
+}
+
+.route-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+  padding: 0 8px;
+}
+
+.route-option {
+  background: #fdfdfd;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 1.4;
+
+  &:hover {
+    background: #f5f5f5;
+    border-color: #d4d4d4;
+  }
+
+  &.selected {
+    background: #fff;
+    border: 2px solid #ff7644;
+    color: #ff7644;
+    font-weight: 600;
+  }
+}
+
+.route-time {
+  font-weight: 700;
+  font-size: 14px;
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import classNames from "classnames";
 import { Button } from "react-aria-components";
 import { DragHandleIcon, CloseIcon } from "@chakra-ui/icons";
@@ -42,35 +41,27 @@ export default function DragAndDropRoutes({
   curPos,
   manualStart,
   onStartSelect,
+  isExceedingTarget,
+  actualDurationMinutes,
+  routes,
+  selectedRouteIndex,
+  onRouteSelect,
 }: {
   route: SearchBoxFeatureSuggestion[];
   onDelete: (id: string) => void;
-  onReorder: (reorderedRoute: SearchBoxFeatureSuggestion[]) => void;
+  onReorder: (route: SearchBoxFeatureSuggestion[]) => void;
   curPos: number[] | undefined;
   manualStart?: SearchBoxFeatureSuggestion;
   onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
+  isExceedingTarget?: boolean;
+  actualDurationMinutes?: number;
+  routes?: any[];
+  selectedRouteIndex?: number;
+  onRouteSelect?: (index: number) => void;
 }) {
   const handleRemoveItem = (id: string) => {
     onDelete(id);
   };
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      const oldIndex = route.findIndex(
-        (item) => item.properties.mapbox_id === active.id.toString()
-      );
-      const newIndex = route.findIndex(
-        (item) => item.properties.mapbox_id === over?.id.toString()
-      );
-
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const reorderedRoute = arrayMove(route, oldIndex, newIndex);
-        onReorder(reorderedRoute);
-      }
-    }
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -79,36 +70,86 @@ export default function DragAndDropRoutes({
     })
   );
 
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      const oldIndex = route.findIndex(
+        (item) => item.properties.mapbox_id === active.id
+      );
+      const newIndex = route.findIndex(
+        (item) => item.properties.mapbox_id === over.id
+      );
+
+      const reorderedRoute = arrayMove(route, oldIndex, newIndex);
+      onReorder(reorderedRoute);
+    }
+  };
+
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext
-        items={route.map((item) => item.properties.mapbox_id)}
-        strategy={verticalListSortingStrategy}
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
       >
-        <div aria-label="Route list" className={styles["route-list"]}>
-          <CurrentLocationOptionalInput
-            curPos={curPos}
-            manualStart={manualStart}
-            onStartSelect={onStartSelect}
-          />
-          {route.length > 0 && (
-            <>
-              {route.map((item) => (
-                <DragAndDropItem
-                  item={item}
-                  key={item.properties.mapbox_id}
-                  onPressDelete={handleRemoveItem}
-                />
-              ))}
-            </>
-          )}
+        <SortableContext
+          items={route.map((item) => item.properties.mapbox_id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div aria-label="Route list" className={styles["route-list"]}>
+            <CurrentLocationOptionalInput
+              curPos={curPos}
+              manualStart={manualStart}
+              onStartSelect={onStartSelect}
+            />
+            {route.length > 0 && (
+              <>
+                {route.map((item) => (
+                  <DragAndDropItem
+                    item={item}
+                    key={item.properties.mapbox_id}
+                    onPressDelete={handleRemoveItem}
+                  />
+                ))}
+              </>
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
+
+      {routes && routes.length > 1 && (
+        <div className={styles["route-selector"]}>
+          {routes.map((r, idx) => (
+            <button
+              key={idx}
+              type="button"
+              className={`${styles["route-option"]} ${
+                idx === selectedRouteIndex ? styles["selected"] : ""
+              }`}
+              onClick={() => onRouteSelect?.(idx)}
+            >
+              Option {idx + 1}
+              <br />
+              <span className={styles["route-time"]}>
+                {Math.round(r.duration / 60)} min
+              </span>
+            </button>
+          ))}
         </div>
-      </SortableContext>
-    </DndContext>
+      )}
+
+      <div
+        className={`${styles["actual-duration"]} ${
+          isExceedingTarget ? styles["exceeds"] : ""
+        }`}
+      >
+        Actual nap time:{" "}
+        <span className={styles["actual-duration-value"]}>
+          {actualDurationMinutes} min
+        </span>
+      </div>
+    </>
   );
 }
 
@@ -137,13 +178,8 @@ const DragAndDropItem = ({
       {...attributes}
       {...listeners}
     >
-      {/* 
-          We disable drag handle for now if the library issues with dnd-kit aren't resolved.
-          But assuming drag works or we fix it later. 
-          Actually the button is the handle here.
-       */}
       <Button className={styles["route-item-drag-button"]}>
-        <DragHandleIcon />
+        <DragHandleIcon className={styles["route-item-drag-icon"]} />
       </Button>
       <div className={styles["route-item-info"]}>
         <div className={styles["route-item-name"]}>{item.properties.name}</div>
@@ -171,11 +207,6 @@ const CurrentLocationOptionalInput = ({
   manualStart?: SearchBoxFeatureSuggestion;
   onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
 }) => {
-  // If curPos is available, we prioritize it and show "Current Location" static text.
-  // The SearchBox is only shown if curPos is missing.
-  // We still respect manualStart if it exists (e.g. if we add a 'change' button later),
-  // but per requirements, we primarily toggle based on curPos availability.
-
   if (curPos) {
     return (
       <div

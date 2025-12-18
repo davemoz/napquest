@@ -62,32 +62,55 @@ export default function DirectionsForm({
   }, [routeCoords]);
 
   // Select best route and check for warnings whenever allDirections OR targetDuration changes
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+
   useEffect(() => {
     if (allDirections && allDirections.routes) {
+      console.log(
+        `DirectionsForm: Found ${allDirections.routes.length} routes.`
+      );
       const bestRoute = findBestRoute(allDirections.routes, targetDuration);
 
       if (bestRoute) {
-        setRouteData({ ...allDirections, routes: [bestRoute] });
+        console.log(
+          `DirectionsForm: Selected route duration: ${
+            bestRoute.duration / 60
+          } min (Target: ${targetDuration})`
+        );
+        // Find index of best route
+        const index = allDirections.routes.indexOf(bestRoute);
+        setSelectedRouteIndex(index !== -1 ? index : 0);
+        setRouteData(allDirections); // Keep all routes
       } else {
         setRouteData(allDirections);
+        setSelectedRouteIndex(0);
       }
     } else {
       setRouteData(null);
+      setSelectedRouteIndex(0);
     }
   }, [allDirections, targetDuration]);
 
   const actualDurationMinutes = useMemo(() => {
-    if (!routeData?.routes?.[0]) return 0;
-    return Math.round(routeData.routes[0].duration / 60);
-  }, [routeData]);
+    if (!routeData?.routes?.[selectedRouteIndex]) return 0;
+    return Math.round(routeData.routes[selectedRouteIndex].duration / 60);
+  }, [routeData, selectedRouteIndex]);
 
   const isExceedingTarget = actualDurationMinutes > targetDuration;
 
   // Visualize Route
-  useRouteLayer(map.current, routeData);
+  useRouteLayer(map.current, routeData, selectedRouteIndex);
 
-  // Auto-fit map viewport to show entire route
-  useFitBounds(map.current, routeData);
+  // Auto-fit map viewport to show entire route (focus on selected)
+  const selectedRouteGeoJSON = useMemo(() => {
+    if (!routeData?.routes?.[selectedRouteIndex]) return null;
+    return {
+      ...routeData,
+      routes: [routeData.routes[selectedRouteIndex]],
+    };
+  }, [routeData, selectedRouteIndex]);
+
+  useFitBounds(map.current, selectedRouteGeoJSON);
 
   const handleRetrieve = (res: SearchBoxRetrieveResponse) => {
     const item = res.features[0];
@@ -153,15 +176,6 @@ export default function DirectionsForm({
               <span className={styles["current-value"]}>
                 Target: {targetDuration} min
               </span>
-              {routeData && (
-                <span
-                  className={`${styles["actual-duration"]} ${
-                    isExceedingTarget ? styles["exceeds"] : ""
-                  }`}
-                >
-                  Actual: {actualDurationMinutes} min
-                </span>
-              )}
             </div>
             <span>120 min</span>
           </div>
@@ -179,6 +193,11 @@ export default function DirectionsForm({
         curPos={curPos}
         manualStart={manualStart}
         onStartSelect={handleStartSelect}
+        isExceedingTarget={isExceedingTarget}
+        actualDurationMinutes={actualDurationMinutes}
+        routes={allDirections?.routes}
+        selectedRouteIndex={selectedRouteIndex}
+        onRouteSelect={setSelectedRouteIndex}
       />
     </>
   );
