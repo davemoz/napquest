@@ -21,12 +21,13 @@ export async function POST(
           const json = await res.json();
           return Response.json({ data: json });
         }
+        return new NextResponse(await res.text(), { status: res.status });
       } catch (error) {
         console.error(
           `There was an error fetching from MapboxMatrixAPI: ${error}`
         );
+        return new NextResponse("Internal Server Error", { status: 500 });
       }
-      break;
 
     case "directions":
       try {
@@ -38,12 +39,13 @@ export async function POST(
           const json = await res.json();
           return Response.json({ data: json });
         }
+        return new NextResponse(await res.text(), { status: res.status });
       } catch (error) {
         console.error(
           `There was an error fetching from MapboxDirectionsAPI: ${error}`
         );
+        return new NextResponse("Internal Server Error", { status: 500 });
       }
-      break;
 
     default:
       return new NextResponse();
