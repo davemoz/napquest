@@ -1,3 +1,9 @@
+.location-status {
+  height: 22px;
+  display: flex;
+  align-items: center;
+}
+
 %geo-indicator {
   border-radius: 100px;
   height: 12px;
@@ -17,13 +23,11 @@
 }
 
 .route-list {
-  border: 1px solid rgb(214, 214, 214);
-  border-radius: 6px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
-  padding: 10px;
+  padding: 0 0 0 30px;
 
   &.empty {
     align-items: center;
@@ -34,9 +38,59 @@
 }
 
 .route-item {
+  border: 1px solid rgb(214, 214, 214);
+  border-radius: var(--border-radius);
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  padding: 10px;
+  position: relative;
+
+  &:first-child,
+  &:first-child:last-child {
+    &::before {
+      content: "";
+      border-top: 2px dotted #d6d6d6;
+      border-left: 2px dotted #d6d6d6;
+      border-bottom: none;
+      border-radius: 10px 0 0 0;
+      width: 20px;
+      height: 30px + 10px;
+      margin-bottom: 10px;
+      display: block;
+      position: absolute;
+      left: -22px;
+      top: 50%;
+    }
+  }
+
+  &:nth-child(n + 2):nth-last-child(n + 2) {
+    &::before {
+      content: "";
+      display: block;
+      height: 100%;
+      width: 2px;
+      border-left: 2px dotted rgb(214, 214, 214);
+      position: absolute;
+      left: -22px;
+      top: 0;
+    }
+  }
+
+  &:last-child {
+    &::before {
+      content: "";
+      border-bottom: 2px dotted #d6d6d6;
+      border-left: 2px dotted #d6d6d6;
+      border-radius: 0 0 0 10px;
+      width: 20px;
+      height: 30px + 10px;
+      display: block;
+      position: absolute;
+      left: -22px;
+      bottom: 50%;
+    }
+  }
 
   .route-item-drag-button {
     all: unset;
@@ -52,9 +106,6 @@
   .route-item-info {
     display: flex;
     flex-direction: column;
-  }
-
-  .route-item-name {
   }
 
   .route-item-address {
@@ -76,13 +127,14 @@
   }
 }
 
-.route-item-drag-preview {
-}
-
 .current-location-input {
   border: 1px solid #e8e8e8;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   margin-left: 20px;
   padding: 10px;
   width: 100%;
+}
+
+.search-box-container {
+  flex: 1;
 }

@@ -41,3 +41,31 @@
   width: 15px;
   height: 15px;
 }
+
+.slider-container {
+  margin-top: 20px;
+  padding: 0 10px;
+}
+
+.slider-label {
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.slider-input {
+  width: 100%;
+  accent-color: black;
+}
+
+.slider-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+}
+
+.current-value {
+  font-weight: bold;
+  color: black;
+}

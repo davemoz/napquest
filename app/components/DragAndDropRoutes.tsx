@@ -1,9 +1,9 @@
 "use client";
 
-import { ChangeEvent, ChangeEventHandler, useState } from "react";
+import { useState } from "react";
 import classNames from "classnames";
 import { Button } from "react-aria-components";
-import { CheckIcon, DragHandleIcon } from "@chakra-ui/icons";
+import { DragHandleIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   DndContext,
   closestCenter,
@@ -21,48 +21,57 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { SearchBoxFeatureSuggestion } from "@mapbox/search-js-core";
+import {
+  SearchBoxFeatureSuggestion,
+  SearchBoxRetrieveResponse,
+} from "@mapbox/search-js-core";
 
-import useMapboxGL from "@/lib/useMapboxGL";
+import dynamic from "next/dynamic";
+
+const SearchBox = dynamic(
+  () => import("@mapbox/search-js-react").then((mod) => mod.SearchBox),
+  { ssr: false }
+);
 
 import styles from "./DragAndDropRoutes.module.scss";
 
 export default function DragAndDropRoutes({
   route,
   onDelete,
-  map,
+  onReorder,
   curPos,
+  manualStart,
+  onStartSelect,
 }: {
   route: SearchBoxFeatureSuggestion[];
   onDelete: (id: string) => void;
-  map: any;
+  onReorder: (reorderedRoute: SearchBoxFeatureSuggestion[]) => void;
   curPos: number[] | undefined;
+  manualStart?: SearchBoxFeatureSuggestion;
+  onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
 }) {
-  const [manualCurPos, setManualCurPos] = useState();
-  const [itemIds, setItemIds] = useState(
-    route.map((item) => item.properties.mapbox_id)
-  );
   const handleRemoveItem = (id: string) => {
     onDelete(id);
   };
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      setItemIds((itemIds) => {
-        const oldIndex = itemIds.indexOf(active.id.toString());
-        /* @ts-ignore */
-        const newIndex = itemIds.indexOf(over.id.toString());
+      const oldIndex = route.findIndex(
+        (item) => item.properties.mapbox_id === active.id.toString()
+      );
+      const newIndex = route.findIndex(
+        (item) => item.properties.mapbox_id === over?.id.toString()
+      );
 
-        return arrayMove(itemIds, oldIndex, newIndex);
-      });
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reorderedRoute = arrayMove(route, oldIndex, newIndex);
+        onReorder(reorderedRoute);
+      }
     }
   }
-  function handleSetNewCurrent(e: ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value;
-    const manualCurPosCoords = undefined; // TODO: Make mapbox search request for new current location
-    setManualCurPos(manualCurPosCoords);
-  }
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -76,22 +85,28 @@ export default function DragAndDropRoutes({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-        {route.length > 0 && (
-          <div aria-label="Route list" className={styles["route-list"]}>
-            <CurrentLocationOptionalInput
-              setNewCurrent={handleSetNewCurrent}
-              curPos={curPos}
-            />
-            {route.map((item) => (
-              <DragAndDropItem
-                item={item}
-                key={item.properties.mapbox_id}
-                onPressDelete={handleRemoveItem}
-              />
-            ))}
-          </div>
-        )}
+      <SortableContext
+        items={route.map((item) => item.properties.mapbox_id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div aria-label="Route list" className={styles["route-list"]}>
+          <CurrentLocationOptionalInput
+            curPos={curPos}
+            manualStart={manualStart}
+            onStartSelect={onStartSelect}
+          />
+          {route.length > 0 && (
+            <>
+              {route.map((item) => (
+                <DragAndDropItem
+                  item={item}
+                  key={item.properties.mapbox_id}
+                  onPressDelete={handleRemoveItem}
+                />
+              ))}
+            </>
+          )}
+        </div>
       </SortableContext>
     </DndContext>
   );
@@ -122,6 +137,11 @@ const DragAndDropItem = ({
       {...attributes}
       {...listeners}
     >
+      {/* 
+          We disable drag handle for now if the library issues with dnd-kit aren't resolved.
+          But assuming drag works or we fix it later. 
+          Actually the button is the handle here.
+       */}
       <Button className={styles["route-item-drag-button"]}>
         <DragHandleIcon />
       </Button>
@@ -136,35 +156,68 @@ const DragAndDropItem = ({
         className={styles["route-item-delete-button"]}
         onPress={() => onPressDelete(item.properties.mapbox_id)}
       >
-        X
+        <CloseIcon />
       </Button>
     </div>
   );
 };
 
 const CurrentLocationOptionalInput = ({
-  setNewCurrent,
   curPos,
+  manualStart,
+  onStartSelect,
 }: {
-  setNewCurrent: ChangeEventHandler;
   curPos: number[] | undefined;
+  manualStart?: SearchBoxFeatureSuggestion;
+  onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
 }) => {
+  // If curPos is available, we prioritize it and show "Current Location" static text.
+  // The SearchBox is only shown if curPos is missing.
+  // We still respect manualStart if it exists (e.g. if we add a 'change' button later),
+  // but per requirements, we primarily toggle based on curPos availability.
+
+  if (curPos) {
+    return (
+      <div
+        className={classNames(styles["route-item"], styles["current-location"])}
+      >
+        <div className={styles["location-status"]}>
+          <div className={styles["geo-indicator-yes"]} />
+        </div>
+        <div className={styles["route-item-info"]}>
+          <div className={styles["route-item-name"]}>Current Location</div>
+          <div className={styles["route-item-address"]}>
+            Using device location
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback to manual input if no curPos
   return (
     <div
       className={classNames(styles["route-item"], styles["current-location"])}
     >
       <div className={styles["location-status"]}>
-        <div
-          className={
-            curPos ? styles["geo-indicator-yes"] : styles["geo-indicator-no"]
-          }
+        <div className={styles["geo-indicator-no"]} />
+      </div>
+      <div className={styles["search-box-container"]}>
+        <SearchBox
+          accessToken={process.env.NEXT_PUBLIC_MAP_BOX_API_KEY!}
+          onRetrieve={onStartSelect}
+          placeholder="Enter start location"
+          value={manualStart ? manualStart.properties.name : ""}
+          theme={{
+            variables: {
+              unit: "15px",
+              padding: "0.2em",
+              borderRadius: "0px",
+              boxShadow: "none",
+            },
+          }}
         />
       </div>
-      <input
-        className={styles["current-location-input"]}
-        onChange={setNewCurrent}
-        placeholder={curPos ? "Current location" : "Enter start location"}
-      />
     </div>
   );
 };

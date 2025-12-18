@@ -1,11 +1,11 @@
-import Map from "./components/Map";
+import MapWrapper from "./components/MapWrapper";
 
 import styles from "./page.module.scss";
 
 export default function Home() {
   return (
     <main className={styles.main}>
-      <Map mapClassName={styles.map} sidebarClassName={styles.sidebar} />
+      <MapWrapper mapClassName={styles.map} sidebarClassName={styles.sidebar} />
     </main>
   );
 }
