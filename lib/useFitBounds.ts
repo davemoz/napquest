@@ -6,7 +6,13 @@ import { Map, LngLatBounds } from "mapbox-gl";
  * @param map - Mapbox GL Map instance
  * @param routeData - Route data from Mapbox Directions API
  */
-export default function useFitBounds(map: Map | null, routeData: unknown) {
+export default function useFitBounds(
+  map: Map | null,
+  routeData: unknown,
+  padding:
+    | number
+    | { top: number; bottom: number; left: number; right: number } = 80
+) {
   useEffect(() => {
     if (!map || !routeData) return;
 
@@ -19,31 +25,33 @@ export default function useFitBounds(map: Map | null, routeData: unknown) {
       }>;
     };
 
-    if (
-      !data.routes ||
-      data.routes.length === 0 ||
-      !data.routes[0].geometry ||
-      !data.routes[0].geometry.coordinates ||
-      data.routes[0].geometry.coordinates.length === 0
-    ) {
+    if (!data.routes || data.routes.length === 0) {
       return;
     }
 
-    const coordinates = data.routes[0].geometry.coordinates;
-
     // Create bounds object
     const bounds = new LngLatBounds();
+    let hasValidCoords = false;
 
-    // Extend bounds to include all coordinates
-    coordinates.forEach((coord) => {
-      bounds.extend(coord);
+    // Extend bounds to include all coordinates from ALL routes
+    data.routes.forEach((route) => {
+      if (route.geometry?.coordinates) {
+        route.geometry.coordinates.forEach((coord) => {
+          bounds.extend(coord);
+          hasValidCoords = true;
+        });
+      }
     });
+
+    if (!hasValidCoords) return;
 
     // Fit map to bounds with padding and smooth animation
     map.fitBounds(bounds, {
-      padding: 80,
+      padding: padding,
       duration: 1000,
       maxZoom: 15, // Prevent zooming in too close for short routes
     });
-  }, [map, routeData]);
+  }, [map, routeData, padding]); // padding in dependency array might cause re-renders if object literal passed directly.
+  // Ideally use deep compare or assume caller memoizes.
+  // For now simple Effect dependency is fine as long as DirectionsForm passes stable object or primitive.
 }

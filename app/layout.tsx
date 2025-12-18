@@ -20,6 +20,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={notoSans.className} suppressHydrationWarning>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3589363029410962"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <body>
         <Analytics />
         <Provider>{children}</Provider>

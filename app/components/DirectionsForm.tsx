@@ -102,15 +102,18 @@ export default function DirectionsForm({
   useRouteLayer(map.current, routeData, selectedRouteIndex);
 
   // Auto-fit map viewport to show entire route (focus on selected)
-  const selectedRouteGeoJSON = useMemo(() => {
-    if (!routeData?.routes?.[selectedRouteIndex]) return null;
-    return {
-      ...routeData,
-      routes: [routeData.routes[selectedRouteIndex]],
-    };
-  }, [routeData, selectedRouteIndex]);
+  // We now fit ALL routes, with padding for the UI sidebar.
+  const fitPadding = useMemo(
+    () => ({
+      top: 40,
+      bottom: 40,
+      left: 450, // Sidebar width + margin
+      right: 40,
+    }),
+    []
+  );
 
-  useFitBounds(map.current, selectedRouteGeoJSON);
+  useFitBounds(map.current, routeData, fitPadding);
 
   const handleRetrieve = (res: SearchBoxRetrieveResponse) => {
     const item = res.features[0];
