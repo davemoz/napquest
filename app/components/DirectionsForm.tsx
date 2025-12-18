@@ -122,7 +122,7 @@ export default function DirectionsForm({
     <>
       <form className={styles.form}>
         <SearchBox
-          accessToken={process.env.NEXT_PUBLIC_MAP_BOX_API_KEY!}
+          accessToken={process.env.MAP_BOX_API_KEY!}
           map={map.current}
           onRetrieve={handleRetrieve}
           placeholder="Where would you like to go?"

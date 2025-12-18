@@ -204,7 +204,7 @@ const CurrentLocationOptionalInput = ({
       </div>
       <div className={styles["search-box-container"]}>
         <SearchBox
-          accessToken={process.env.NEXT_PUBLIC_MAP_BOX_API_KEY!}
+          accessToken={process.env.MAP_BOX_API_KEY!}
           onRetrieve={onStartSelect}
           placeholder="Enter start location"
           value={manualStart ? manualStart.properties.name : ""}
@@ -212,9 +212,9 @@ const CurrentLocationOptionalInput = ({
             variables: {
               unit: "var(--searchbox-unit)",
               padding: "var(--searchbox-padding)",
-              borderRadius: "var(--searchbox-border-radius)",
+              borderRadius: "var(--searchbox-borderRadius)",
               border: "var(--searchbox-border)",
-              boxShadow: "var(--searchbox-box-shadow)",
+              boxShadow: "var(--searchbox-boxShadow)",
             },
           }}
         />

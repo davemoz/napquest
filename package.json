@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "dotenvx run -- NODE_OPTIONS='--inspect' next dev",
+    "dev": "NODE_OPTIONS='--inspect' dotenvx run -f .env.local -- next dev",
     "build": "dotenvx run -- next build",
-    "start": "dotenvx run -- next start",
+    "start": "dotenvx run -f .env -- next start",
     "lint": "dotenvx run -- next lint"
   },
   "dependencies": {

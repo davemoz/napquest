@@ -15,7 +15,7 @@ export async function POST(
       try {
         const coords = await request.text();
         const res = await fetch(
-          `${MATRIX_API_URL}/${coords}?access_token=${process.env.NEXT_PUBLIC_MAP_BOX_API_KEY}`
+          `${MATRIX_API_URL}/${coords}?access_token=${process.env.MAP_BOX_API_KEY}`
         );
         if (res.ok) {
           const json = await res.json();
@@ -32,7 +32,7 @@ export async function POST(
       try {
         const coords = await request.text();
         // We request geojson geometries and alternatives=true (for later Phases)
-        const query = `geometries=geojson&overview=full&alternatives=true&access_token=${process.env.NEXT_PUBLIC_MAP_BOX_API_KEY}`;
+        const query = `geometries=geojson&overview=full&alternatives=true&access_token=${process.env.MAP_BOX_API_KEY}`;
         const res = await fetch(`${DIRECTIONS_API_URL}/${coords}?${query}`);
         if (res.ok) {
           const json = await res.json();
