@@ -185,28 +185,6 @@
   }
 }
 
-.actual-duration {
-  align-items: center;
-  background: #e4fdff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 12px;
-
-  .actual-duration-value {
-    color: #22c55e;
-    display: block;
-  }
-
-  &.exceeds {
-    color: #ef4444;
-  }
-}
-
 .route-selector {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));

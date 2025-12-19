@@ -5,7 +5,8 @@ import { Spinner } from "@chakra-ui/react";
 import DragAndDropRoutes from "./DragAndDropRoutes";
 import NavigationMode from "./NavigationMode";
 
-import getMapboxDirections from "@/lib/getMapboxDirections";
+import { useDebounce } from "use-debounce";
+import { fetchExtendedRoutes } from "@/lib/fetchExtendedRoutes";
 import useRouteLayer from "@/lib/useRouteLayer";
 import useFitBounds from "@/lib/useFitBounds";
 import {
@@ -36,7 +37,9 @@ export default function DirectionsForm({
   >();
   const [route, setRoute] = useState<SearchBoxFeatureSuggestion[]>([]);
   const [targetDuration, setTargetDuration] = useState<number>(30);
+  const [debouncedDuration] = useDebounce(targetDuration, 500);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const routeCoords = useMemo(() => {
     const startCoords = manualStart?.geometry.coordinates || curPos;
@@ -51,17 +54,25 @@ export default function DirectionsForm({
   const [allDirections, setAllDirections] = useState<any>();
   const [routeData, setRouteData] = useState<any>();
 
-  // Fetch all directions (with alternatives) when coordinates change
+  // Fetch all directions (with alternatives) when coordinates or target duration changes
   useEffect(() => {
     if (routeCoords.length < 2) return;
     const doFetch = async () => {
-      const directionsResponse = await getMapboxDirections(
-        routeCoords as [number, number][]
-      );
-      setAllDirections(directionsResponse);
+      setIsLoading(true);
+      try {
+        const directionsResponse = await fetchExtendedRoutes(
+          routeCoords as [number, number][],
+          debouncedDuration
+        );
+        setAllDirections(directionsResponse);
+      } catch (e) {
+        console.error("Error fetching directions", e);
+      } finally {
+        setIsLoading(false);
+      }
     };
     doFetch();
-  }, [routeCoords]);
+  }, [routeCoords, debouncedDuration]);
 
   // Select best route and check for warnings whenever allDirections OR targetDuration changes
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
@@ -136,6 +147,11 @@ export default function DirectionsForm({
     const [lng, lat] = item.geometry.coordinates;
     if (map.current) {
       new Marker({ color: "green" }).setLngLat([lng, lat]).addTo(map.current);
+      map.current.flyTo({
+        center: [lng, lat],
+        zoom: 14,
+        essential: true,
+      });
     }
   };
 
@@ -163,7 +179,49 @@ export default function DirectionsForm({
 
   return (
     <div className={styles["planning-container"]}>
-      <form className={styles.form}>
+      <div className={styles["slider-container"]}>
+        <p className={styles["slider-label"]}>Target Duration (minutes)</p>
+        <input
+          type="range"
+          min="0"
+          max="120"
+          value={targetDuration}
+          onChange={(e) => setTargetDuration(parseInt(e.target.value))}
+          className={styles["slider-input"]}
+        />
+        <div className={styles["slider-values"]}>
+          <span>0 min</span>
+          <div className={styles["duration-display"]}>
+            <span className={styles["current-value"]}>
+              Target: {targetDuration} min
+            </span>
+          </div>
+          <span>120 min</span>
+        </div>
+        {isExceedingTarget && (
+          <div className={styles["warning-message"]}>
+            ⚠️ Route is longer than target duration
+          </div>
+        )}
+      </div>
+      {isLoading && (
+        <div className={styles["loading-overlay"]}>
+          <Spinner size="xl" color="blue.500" />
+          <p>Calculating scenic routes...</p>
+        </div>
+      )}
+      <DragAndDropRoutes
+        route={route}
+        onDelete={handleDeleteItem}
+        onReorder={handleReorder}
+        curPos={curPos}
+        manualStart={manualStart}
+        onStartSelect={handleStartSelect}
+        routes={allDirections?.routes}
+        selectedRouteIndex={selectedRouteIndex}
+        onRouteSelect={setSelectedRouteIndex}
+      />
+      <div className={styles["search-container"]}>
         <SearchBox
           accessToken={process.env.MAP_BOX_API_KEY!}
           map={map.current}
@@ -179,46 +237,17 @@ export default function DirectionsForm({
             },
           }}
         />
-
-        <div className={styles["slider-container"]}>
-          <p className={styles["slider-label"]}>Target Duration (minutes)</p>
-          <input
-            type="range"
-            min="0"
-            max="120"
-            value={targetDuration}
-            onChange={(e) => setTargetDuration(parseInt(e.target.value))}
-            className={styles["slider-input"]}
-          />
-          <div className={styles["slider-values"]}>
-            <span>0 min</span>
-            <div className={styles["duration-display"]}>
-              <span className={styles["current-value"]}>
-                Target: {targetDuration} min
-              </span>
-            </div>
-            <span>120 min</span>
-          </div>
-          {isExceedingTarget && (
-            <div className={styles["warning-message"]}>
-              ⚠️ Route is longer than target duration
-            </div>
-          )}
-        </div>
-      </form>
-      <DragAndDropRoutes
-        route={route}
-        onDelete={handleDeleteItem}
-        onReorder={handleReorder}
-        curPos={curPos}
-        manualStart={manualStart}
-        onStartSelect={handleStartSelect}
-        isExceedingTarget={isExceedingTarget}
-        actualDurationMinutes={actualDurationMinutes}
-        routes={allDirections?.routes}
-        selectedRouteIndex={selectedRouteIndex}
-        onRouteSelect={setSelectedRouteIndex}
-      />
+      </div>
+      <div
+        className={`${styles["actual-duration"]} ${
+          isExceedingTarget ? styles["exceeds"] : ""
+        }`}
+      >
+        Actual nap time:{" "}
+        <span className={styles["actual-duration-value"]}>
+          {actualDurationMinutes} min
+        </span>
+      </div>
 
       {selectedRoute && (
         <div className={styles["start-driving-button-container"]}>

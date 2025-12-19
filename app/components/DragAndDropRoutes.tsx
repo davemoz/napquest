@@ -10,7 +10,6 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -41,8 +40,6 @@ export default function DragAndDropRoutes({
   curPos,
   manualStart,
   onStartSelect,
-  isExceedingTarget,
-  actualDurationMinutes,
   routes,
   selectedRouteIndex,
   onRouteSelect,
@@ -53,8 +50,6 @@ export default function DragAndDropRoutes({
   curPos: number[] | undefined;
   manualStart?: SearchBoxFeatureSuggestion;
   onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
-  isExceedingTarget?: boolean;
-  actualDurationMinutes?: number;
   routes?: any[];
   selectedRouteIndex?: number;
   onRouteSelect?: (index: number) => void;
@@ -138,17 +133,6 @@ export default function DragAndDropRoutes({
           ))}
         </div>
       )}
-
-      <div
-        className={`${styles["actual-duration"]} ${
-          isExceedingTarget ? styles["exceeds"] : ""
-        }`}
-      >
-        Actual nap time:{" "}
-        <span className={styles["actual-duration-value"]}>
-          {actualDurationMinutes} min
-        </span>
-      </div>
     </>
   );
 }
@@ -231,7 +215,7 @@ const CurrentLocationOptionalInput = ({
       className={classNames(styles["route-item"], styles["current-location"])}
     >
       <div className={styles["location-status"]}>
-        <div className={styles["geo-indicator-no"]} />
+        {!manualStart && <div className={styles["geo-indicator-no"]} />}
       </div>
       <div className={styles["search-box-container"]}>
         <SearchBox

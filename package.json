@@ -6,7 +6,8 @@
     "dev": "NODE_OPTIONS='--inspect' dotenvx run -f .env.local -- next dev",
     "build": "dotenvx run -- next build",
     "start": "dotenvx run -f .env -- next start",
-    "lint": "dotenvx run -- next lint"
+    "lint": "dotenvx run -- next lint",
+    "test": "vitest"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
@@ -19,6 +20,7 @@
     "@mapbox/search-js-core": "^1.5.1",
     "@mapbox/search-js-react": "^1.5.1",
     "@react-stately/data": "^3.15.0",
+    "@turf/turf": "^7.3.1",
     "@vercel/analytics": "^1.6.1",
     "mapbox-gl": "3.17.0",
     "next": "latest",
@@ -26,17 +28,20 @@
     "react-aria-components": "1.14.0",
     "react-dom": "^19.2.3",
     "react-icons": "^5.5.0",
-    "sass": "^1.97.0"
+    "sass": "^1.97.0",
+    "use-debounce": "^10.0.6"
   },
   "devDependencies": {
     "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitest/ui": "^4.0.16",
     "classnames": "^2.5.1",
     "eslint": "^9.39.2",
     "eslint-config-next": "latest",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": "22.x"
