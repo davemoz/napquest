@@ -1,7 +1,10 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  gap: 16px;
+  /* Take available space but allow shrinking */
+  flex: 1;
+  min-height: 0;
   padding: 0;
   animation: slideIn 0.3s ease-out;
 }
@@ -23,7 +26,6 @@
   align-items: center;
   padding-bottom: 16px;
   border-bottom: 1px solid #eee;
-  margin-bottom: 16px;
 }
 
 .title {
@@ -53,19 +55,16 @@
   background: #f9fafb;
   border-radius: 12px;
   padding: 16px;
-  margin-bottom: 20px;
   border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
   font-size: 14px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
 }
 
 .label {
@@ -79,8 +78,11 @@
 
 .steps-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 4px; /* Space for scrollbar */
+  padding-left: 8px;
+  padding-bottom: 20px;
 
   /* Scrollbar styling */
   &::-webkit-scrollbar {

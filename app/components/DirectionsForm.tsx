@@ -221,21 +221,10 @@ export default function DirectionsForm({
       />
 
       {selectedRoute && (
-        <div style={{ marginTop: 24, padding: "0 8px 20px" }}>
+        <div className={styles["start-driving-button-container"]}>
           <button
             onClick={() => setIsNavigating(true)}
-            style={{
-              width: "100%",
-              padding: "12px",
-              background: "#000",
-              color: "#fff",
-              border: "none",
-              borderRadius: "12px",
-              fontSize: "16px",
-              fontWeight: 700,
-              cursor: "pointer",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
-            }}
+            className={styles["start-driving-button"]}
           >
             Start Driving 🚗
           </button>

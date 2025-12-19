@@ -1,5 +1,6 @@
 "use client";
 
+import { useSettings } from "../context/SettingsContext";
 import styles from "./NavigationMode.module.scss";
 
 interface Step {
@@ -32,6 +33,7 @@ interface NavigationModeProps {
 }
 
 export default function NavigationMode({ route, onExit }: NavigationModeProps) {
+  const { unitSystem } = useSettings();
   // We assume the first leg for a simple A to B route
   const leg = route.legs[0];
   if (!leg || !leg.steps) {
@@ -49,6 +51,14 @@ export default function NavigationMode({ route, onExit }: NavigationModeProps) {
   }
 
   const formatDistance = (meters: number) => {
+    if (unitSystem === "imperial") {
+      const miles = meters * 0.000621371;
+      if (miles < 0.1) {
+        return `${Math.round(meters * 3.28084)} ft`;
+      }
+      return `${miles.toFixed(1)} mi`;
+    }
+
     if (meters < 1000) {
       return `${Math.round(meters)} m`;
     }

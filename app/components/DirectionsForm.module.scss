@@ -13,12 +13,17 @@
 }
 
 .planning-container {
+  /* Allow shrinking but don't force growing if content is small */
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+
   display: flex;
   flex-direction: column;
-  /* Add padding-right to avoid scrollbar overlapping content if needed */
+  gap: 20px;
+  /* Add padding-right to avoid scrollbar overlapping */
   padding-right: 4px;
+  padding-bottom: 20px; /* Prevent cutoff at bottom */
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -254,4 +259,21 @@
   60% {
     transform: translate3d(4px, 0, 0);
   }
+}
+
+.start-driving-button-container {
+  padding: 0 0 20px;
+}
+
+.start-driving-button {
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }

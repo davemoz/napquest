@@ -1,3 +1,13 @@
+.container {
+  margin-bottom: 20px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
 .logo {
   font-size: 28px;
   font-weight: bold;
@@ -6,8 +16,26 @@
 }
 
 .description {
-  display: inherit;
-  justify-content: inherit;
-  align-items: inherit;
-  padding-bottom: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.settings-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: -8px; /* Align with edge */
+  border-radius: 50%;
+  color: #9ca3af;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+
+  &:hover {
+    background: #f3f4f6;
+    color: #111;
+  }
 }
