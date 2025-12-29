@@ -5,11 +5,20 @@ const MATRIX_API_URL =
 const DIRECTIONS_API_URL =
   "https://api.mapbox.com/directions/v5/mapbox/driving";
 
+import { checkRateLimit } from "@/lib/rate-limiter";
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ slug: string[] }> }
 ) {
   const { slug } = await params;
+
+  // Rate Limiting
+  const ip = request.headers.get("x-forwarded-for") || "unknown";
+  if (!checkRateLimit(ip)) {
+    return new NextResponse("Too Many Requests", { status: 429 });
+  }
+
   switch (slug[0]) {
     case "directions-matrix":
       try {
