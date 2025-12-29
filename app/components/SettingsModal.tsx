@@ -71,8 +71,16 @@ export default function SettingsModal() {
               Select your destination and desired duration, and we&apos;ll find
               the best way to keep moving until nap time is over.
             </p>
-            <p className={styles["about-text"]}>
-              We are not associated with "MapQuest" or "Google Maps", and
+            <p className={styles["disclaimer-text"]}>
+              Please use at your own risk. Directions may be incorrect or
+              incomplete, and are in no way the optimal route to your
+              destination. This is for a nap, after all.
+            </p>
+            <p className={styles["disclaimer-text"]}>
+              NapQuest is an independent application and is not affiliated with,
+              endorsed by, or connected to MapQuest, Google Maps, or their
+              respective affiliates. All trademarks are the property of their
+              respective owners.
             </p>
             <div className={styles.version}>Version 1.0</div>
           </div>

@@ -140,8 +140,20 @@
 
   /* Firefox support */
   &::-moz-range-progress {
-    background: #000;
+    background: linear-gradient(#ff7644, #ff7644) 0 / var(--sx) 100% no-repeat,
+      #efefef;
+    border-radius: 10px;
     height: 6px;
+  }
+
+  &:hover &::-moz-range-progress {
+    background: linear-gradient(#ff5518, #ff5518) 0 / var(--sx) 100% no-repeat,
+      #efefef;
+  }
+
+  &:active &::-moz-range-progress {
+    background: linear-gradient(#ff5518, #ff5518) 0 / var(--sx) 100% no-repeat,
+      #efefef;
   }
 
   &::-moz-range-track {
