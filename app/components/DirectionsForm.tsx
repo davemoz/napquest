@@ -15,15 +15,9 @@ import {
 } from "@mapbox/search-js-core";
 import { Marker } from "mapbox-gl";
 
-import dynamic from "next/dynamic";
-
-const SearchBox = dynamic(
-  () => import("@mapbox/search-js-react").then((mod) => mod.SearchBox),
-  { ssr: false }
-);
-
 import styles from "./DirectionsForm.module.scss";
 import findBestRoute from "@/lib/findBestRoute";
+import classNames from "classnames";
 
 export default function DirectionsForm({
   map,
@@ -188,6 +182,19 @@ export default function DirectionsForm({
           value={targetDuration}
           onChange={(e) => setTargetDuration(parseInt(e.target.value))}
           className={styles["slider-input"]}
+          ref={(node) => {
+            if (node) {
+              node.style.setProperty("--value", node.value);
+              node.style.setProperty("--min", node.min == "" ? "0" : node.min);
+              node.style.setProperty(
+                "--max",
+                node.max == "" ? "100" : node.max
+              );
+              node.addEventListener("input", () =>
+                node.style.setProperty("--value", node.value)
+              );
+            }
+          }}
         />
         <div className={styles["slider-values"]}>
           <span>0 min</span>
@@ -198,11 +205,6 @@ export default function DirectionsForm({
           </div>
           <span>120 min</span>
         </div>
-        {isExceedingTarget && (
-          <div className={styles["warning-message"]}>
-            ⚠️ Route is longer than target duration
-          </div>
-        )}
       </div>
       {isLoading && (
         <div className={styles["loading-overlay"]}>
@@ -216,38 +218,26 @@ export default function DirectionsForm({
         onReorder={handleReorder}
         curPos={curPos}
         manualStart={manualStart}
+        map={map.current}
         onStartSelect={handleStartSelect}
         routes={allDirections?.routes}
         selectedRouteIndex={selectedRouteIndex}
         onRouteSelect={setSelectedRouteIndex}
+        handleRetrieve={handleRetrieve}
       />
-      <div className={styles["search-container"]}>
-        <SearchBox
-          accessToken={process.env.MAP_BOX_API_KEY!}
-          map={map.current}
-          onRetrieve={handleRetrieve}
-          placeholder="Where would you like to go?"
-          theme={{
-            variables: {
-              unit: "var(--searchbox-unit)",
-              borderRadius: "var(--searchbox-borderRadius)",
-              border: "var(--searchbox-border)",
-              boxShadow: "var(--searchbox-boxShadow)",
-              padding: "var(--searchbox-padding)",
-            },
-          }}
-        />
-      </div>
-      <div
-        className={`${styles["actual-duration"]} ${
-          isExceedingTarget ? styles["exceeds"] : ""
-        }`}
-      >
-        Actual nap time:{" "}
-        <span className={styles["actual-duration-value"]}>
-          {actualDurationMinutes} min
-        </span>
-      </div>
+
+      {/* selectedRoute && (
+        <div
+          className={classNames(styles["actual-duration"], {
+            [styles["exceeds"]]: isExceedingTarget,
+          })}
+        >
+          {isExceedingTarget && "⚠️ "}Actual nap time:{" "}
+          <span className={styles["actual-duration-value"]}>
+            {actualDurationMinutes} min
+          </span>
+        </div>
+      )*/}
 
       {selectedRoute && (
         <div className={styles["start-driving-button-container"]}>

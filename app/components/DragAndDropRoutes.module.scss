@@ -1,37 +1,28 @@
-.location-status {
-  height: 24px;
+.routes-flow {
   display: flex;
-  align-items: center;
-}
-
-%geo-indicator {
-  border-radius: 50%;
-  height: 10px;
-  width: 10px;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0, 0, 0, 0.05);
-}
-
-.geo-indicator-yes {
-  @extend %geo-indicator;
-  background: #22c55e;
-}
-
-.geo-indicator-no {
-  @extend %geo-indicator;
-  background: #ef4444;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  /* Ensure padding for the connectors on the left */
+  /* route-list and search-container already have padding/margin logic, 
+     but we need to align them. */
 }
 
 .route-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 0 0 36px;
+  /* Removed padding-left: 32px to let items handle their own spacing relative to the line if needed, 
+     or keep it and position pseudo elements outside. 
+     Current padding: 0 0 0 32px. This is good space for the line. */
+  padding: 0 0 0 32px;
+  position: relative;
 
-  --searchbox-unit: 14px;
-  --searchbox-borderRadius: 8px;
-  --searchbox-padding: 10px;
-  --searchbox-border: 1px solid #efefef;
-  --searchbox-boxShadow: none;
+  // Ensure items sit on top of the line
+  > * {
+    z-index: 1;
+    position: relative;
+  }
 
   &.empty {
     align-items: center;
@@ -43,141 +34,40 @@
   }
 }
 
-.route-item {
-  background: #ffffff;
-  border: 1px solid #f3f4f6;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  position: relative;
-  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+.search-container {
+  /* Make this look like a route item so it aligns with the connector line */
+  /* Invisible Wrapper - The Card style is now on the SearchBox component */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 
-  /* Connector lines */
+  margin-left: 32px;
+  position: relative;
+  z-index: 1;
+
+  /* Search Box Vars to be used by the Component Theme */
+  --searchbox-unit: 13px;
+  --searchbox-borderRadius: 12px;
+  --searchbox-padding: 10px;
+  --searchbox-border: 1px solid #f3f4f6;
+  --searchbox-boxShadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --searchbox-bg: #ffffff;
+  --searchbox-hover-bg: #f9fafb;
+  --searchbox-hover-bg-option: #f9fafb;
+
+  /* SEARCH BOX CONNECTOR - Bottom Left Curve (Dotted) */
   &::before {
     content: "";
     position: absolute;
-    left: -26px;
-    border-left: 2px dotted #e5e7eb;
+    right: 100%;
+    top: -10px; /* Connect from the item above */
     width: 20px;
+    height: calc(50% + 8px); /* Go to center of search box */
+    border-left: 2px dotted #e5e7eb;
+    border-bottom: 2px dotted #e5e7eb;
+    border-bottom-left-radius: 12px;
   }
-
-  &:first-child {
-    &::before {
-      height: calc(50% + 8px);
-      bottom: -8px;
-      border-top: 2px dotted #e5e7eb;
-      border-top-left-radius: 12px;
-    }
-  }
-
-  &:not(:first-child):not(:last-child) {
-    &::before {
-      height: 100%;
-      top: 0;
-    }
-  }
-
-  &:last-child:not(:first-child) {
-    &::before {
-      height: calc(50% + 8px);
-      top: -8px;
-      border-bottom: 2px dotted #e5e7eb;
-      border-bottom-left-radius: 12px;
-    }
-  }
-
-  &:not(:first-child) {
-    &:hover {
-      cursor: grab;
-      border-color: #e5e7eb;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
-        0 4px 6px -2px rgba(0, 0, 0, 0.02);
-      transform: translateY(-2px);
-    }
-
-    &[aria-pressed="true"] {
-      cursor: grabbing;
-      border-color: #e5e7eb;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
-        0 4px 6px -2px rgba(0, 0, 0, 0.02);
-      transform: translateY(-2px);
-    }
-  }
-
-  .route-item-drag-button {
-    all: unset;
-    cursor: grab;
-    color: #9ca3af;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background 0.2s, color 0.2s;
-
-    &:hover {
-      background: #f9fafb;
-      color: #4b5563;
-    }
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
-
-  .route-item-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .route-item-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-  }
-
-  .route-item-address {
-    color: #6b7280;
-    font-size: 12px;
-  }
-
-  .route-item-delete-button {
-    all: unset;
-    cursor: pointer;
-    color: #d1d5db;
-    padding: 6px;
-    border-radius: 6px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover {
-      background: #fee2e2;
-      color: #ef4444;
-    }
-  }
-
-  &.current-location {
-    background: #f9fafb;
-    border-style: dashed;
-    border-color: #e5e7eb;
-
-    .route-item-name {
-      color: #374151;
-    }
-  }
-}
-
-.search-box-container {
-  flex: 1;
 
   :global(.mapboxsearch-search-box) {
     --mapboxsearch-unit: 13px;

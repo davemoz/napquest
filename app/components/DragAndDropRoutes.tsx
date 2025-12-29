@@ -1,8 +1,6 @@
 "use client";
 
 import classNames from "classnames";
-import { Button } from "react-aria-components";
-import { DragHandleIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   DndContext,
   closestCenter,
@@ -15,10 +13,8 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import {
   SearchBoxFeatureSuggestion,
   SearchBoxRetrieveResponse,
@@ -32,6 +28,8 @@ const SearchBox = dynamic(
 );
 
 import styles from "./DragAndDropRoutes.module.scss";
+import DragAndDropItem from "./DragAndDropItem";
+import CurrentLocationInput from "./CurrentLocationInput";
 
 export default function DragAndDropRoutes({
   route,
@@ -39,20 +37,24 @@ export default function DragAndDropRoutes({
   onReorder,
   curPos,
   manualStart,
+  map,
   onStartSelect,
   routes,
   selectedRouteIndex,
   onRouteSelect,
+  handleRetrieve,
 }: {
   route: SearchBoxFeatureSuggestion[];
   onDelete: (id: string) => void;
   onReorder: (route: SearchBoxFeatureSuggestion[]) => void;
   curPos: number[] | undefined;
   manualStart?: SearchBoxFeatureSuggestion;
+  map?: any;
   onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
   routes?: any[];
   selectedRouteIndex?: number;
   onRouteSelect?: (index: number) => void;
+  handleRetrieve?: (res: SearchBoxRetrieveResponse) => void;
 }) {
   const handleRemoveItem = (id: string) => {
     onDelete(id);
@@ -82,7 +84,7 @@ export default function DragAndDropRoutes({
   };
 
   return (
-    <>
+    <div className={styles["routes-flow"]}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -93,7 +95,7 @@ export default function DragAndDropRoutes({
           strategy={verticalListSortingStrategy}
         >
           <div aria-label="Route list" className={styles["route-list"]}>
-            <CurrentLocationOptionalInput
+            <CurrentLocationInput
               curPos={curPos}
               manualStart={manualStart}
               onStartSelect={onStartSelect}
@@ -112,6 +114,34 @@ export default function DragAndDropRoutes({
           </div>
         </SortableContext>
       </DndContext>
+
+      <div
+        className={classNames(styles["search-container"], {
+          [styles["has-no-route"]]: route.length === 0,
+        })}
+      >
+        <SearchBox
+          accessToken={process.env.MAP_BOX_API_KEY!}
+          map={map}
+          onRetrieve={handleRetrieve}
+          placeholder={
+            route.length > 0 ? "Add a stop" : "Where would you like to go?"
+          }
+          theme={{
+            variables: {
+              unit: "var(--searchbox-unit)",
+              borderRadius: "var(--searchbox-borderRadius)",
+              border: "var(--searchbox-border)",
+              boxShadow: "var(--searchbox-boxShadow)",
+              padding: "var(--searchbox-padding)",
+              colorBackground: "var(--searchbox-bg)",
+              colorText: "#111827",
+              colorBackgroundHover: "var(--searchbox-hover-bg)",
+              fontFamily: "inherit",
+            },
+          }}
+        />
+      </div>
 
       {routes && routes.length > 1 && (
         <div className={styles["route-selector"]}>
@@ -133,107 +163,6 @@ export default function DragAndDropRoutes({
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 }
-
-const DragAndDropItem = ({
-  item,
-  onPressDelete,
-}: {
-  item: SearchBoxFeatureSuggestion;
-  onPressDelete: (id: string) => void;
-}) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: item.properties.mapbox_id,
-    });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      className={styles["route-item"]}
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
-      <Button className={styles["route-item-drag-button"]}>
-        <DragHandleIcon className={styles["route-item-drag-icon"]} />
-      </Button>
-      <div className={styles["route-item-info"]}>
-        <div className={styles["route-item-name"]}>{item.properties.name}</div>
-        <div className={styles["route-item-address"]}>
-          {item.properties.address}
-        </div>
-      </div>
-      <Button
-        aria-label="Remove from list"
-        className={styles["route-item-delete-button"]}
-        onPress={() => onPressDelete(item.properties.mapbox_id)}
-      >
-        <CloseIcon />
-      </Button>
-    </div>
-  );
-};
-
-const CurrentLocationOptionalInput = ({
-  curPos,
-  manualStart,
-  onStartSelect,
-}: {
-  curPos: number[] | undefined;
-  manualStart?: SearchBoxFeatureSuggestion;
-  onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
-}) => {
-  if (curPos) {
-    return (
-      <div
-        className={classNames(styles["route-item"], styles["current-location"])}
-      >
-        <div className={styles["location-status"]}>
-          <div className={styles["geo-indicator-yes"]} />
-        </div>
-        <div className={styles["route-item-info"]}>
-          <div className={styles["route-item-name"]}>Current Location</div>
-          <div className={styles["route-item-address"]}>
-            Using device location
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Fallback to manual input if no curPos
-  return (
-    <div
-      className={classNames(styles["route-item"], styles["current-location"])}
-    >
-      <div className={styles["location-status"]}>
-        {!manualStart && <div className={styles["geo-indicator-no"]} />}
-      </div>
-      <div className={styles["search-box-container"]}>
-        <SearchBox
-          accessToken={process.env.MAP_BOX_API_KEY!}
-          onRetrieve={onStartSelect}
-          placeholder="Enter start location"
-          value={manualStart ? manualStart.properties.name : ""}
-          theme={{
-            variables: {
-              unit: "var(--searchbox-unit)",
-              padding: "var(--searchbox-padding)",
-              borderRadius: "var(--searchbox-borderRadius)",
-              border: "var(--searchbox-border)",
-              boxShadow: "var(--searchbox-boxShadow)",
-            },
-          }}
-        />
-      </div>
-    </div>
-  );
-};

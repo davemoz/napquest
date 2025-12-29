@@ -1,0 +1,161 @@
+.route-slot {
+  position: relative;
+  /* Shared Connector Logic */
+
+  /* FIRST ITEM (Start) - Top Left Curve */
+  &:first-child {
+    &::before {
+      content: "";
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      width: 20px;
+      height: calc(
+        50% + 8px
+      ); /* Extend down halfway into gap (16px / 2 = 8px) */
+      border-left: 2px solid #e5e7eb;
+      border-top: 2px solid #e5e7eb;
+      border-top-left-radius: 12px;
+    }
+  }
+
+  /* MIDDLE ITEMS (Waypoints) - T-Junction */
+  /* If it's not first, it needs a vertical line coming from above */
+  &:not(:first-child) {
+    /* Vertical line segment */
+    &::before {
+      content: "";
+      position: absolute;
+      right: 100%; /* flush with left edge of item */
+      top: -8px; /* Connect to gap from above */
+      bottom: -8px; /* Extend to gap below */
+      width: 20px; /* Just for spacing, border is on left */
+      border-left: 2px solid #e5e7eb;
+    }
+
+    /* Horizontal connector */
+    &::after {
+      content: "";
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      width: 20px; /* Length of connector arm */
+      height: 2px;
+      background: #e5e7eb; /* Solid horizontal line */
+    }
+  }
+}
+
+.route-card {
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  position: relative;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  /* Drag hover effects */
+  /* We need to target .route-card inside .route-slot when hovering?
+     The dnd-kit listeners are on this card. So hover should work on this card. */
+
+  /* But note: :not(:first-child) logic for generic hover might affect current-location card if it had this class.
+     Current-location usually is first-child of list. 
+     So 'route-card' logic should just apply hover if it's draggable?
+     The TSX adds drag listeners to all route items except CurrentLocation.
+     We can just keep the hover styles here. */
+
+  &:hover {
+    cursor: grab;
+    border-color: #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    transform: translateY(-2px);
+  }
+
+  &[aria-pressed="true"] {
+    cursor: grabbing;
+    border-color: #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    transform: translateY(-2px);
+  }
+
+  .route-item-drag-button {
+    all: unset;
+    cursor: grab;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+      background: #f9fafb;
+      color: #4b5563;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .route-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .route-item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .route-item-address {
+    color: #6b7280;
+    font-size: 12px;
+  }
+
+  .route-item-delete-button {
+    all: unset;
+    cursor: pointer;
+    color: #d1d5db;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+  }
+
+  &.current-location {
+    background: #f9fafb;
+    border-style: dashed;
+    border-color: #e5e7eb;
+
+    .route-item-name {
+      color: #374151;
+    }
+
+    &:hover {
+      background: #ffffff;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+  }
+}

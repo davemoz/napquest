@@ -71,6 +71,9 @@ export default function SettingsModal() {
               Select your destination and desired duration, and we&apos;ll find
               the best way to keep moving until nap time is over.
             </p>
+            <p className={styles["about-text"]}>
+              We are not associated with "MapQuest" or "Google Maps", and
+            </p>
             <div className={styles.version}>Version 1.0</div>
           </div>
         </div>

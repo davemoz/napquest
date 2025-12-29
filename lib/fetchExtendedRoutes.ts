@@ -99,14 +99,17 @@ export async function fetchExtendedRoutes(
     }
   });
 
-  // Sort by closeness to target duration?
-  // Actually, standard Mapbox response sorts by 'best' (fastest).
-  // The UI selects the "Best Fit" automatically, so we just return the pile.
-  // But maybe we should sort them so index 0 is the "best fit" instead of "fastest"?
-  // The current UI logic in DirectionsForm selects the best fit, so we can just return the list.
+  // 7. Sort by closeness to target duration and limit to top 4 options
+  uniqueRoutes.sort((a, b) => {
+    const diffA = Math.abs(a.duration - targetDurationSec);
+    const diffB = Math.abs(b.duration - targetDurationSec);
+    return diffA - diffB;
+  });
+
+  const limitedRoutes = uniqueRoutes.slice(0, 4);
 
   return {
     ...directResponse,
-    routes: uniqueRoutes,
+    routes: limitedRoutes,
   };
 }
