@@ -10,11 +10,13 @@ const Map = dynamic(() => import("./Map"), {
 export default function MapWrapper({
   mapClassName,
   sidebarClassName,
+  mapboxToken,
 }: {
   mapClassName: string;
   sidebarClassName: string;
+  mapboxToken: string;
 }) {
   return (
-    <Map mapClassName={mapClassName} sidebarClassName={sidebarClassName} />
+    <Map mapClassName={mapClassName} sidebarClassName={sidebarClassName} mapboxToken={mapboxToken} />
   );
 }

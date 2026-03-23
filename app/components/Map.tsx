@@ -9,12 +9,14 @@ import getMapboxGL from "@/lib/useMapboxGL";
 const Map = ({
   mapClassName,
   sidebarClassName,
+  mapboxToken,
 }: {
   mapClassName: string;
   sidebarClassName: string;
+  mapboxToken: string;
 }) => {
-  const mapRef = useRef(null);
-  const { map, curPos } = getMapboxGL(mapRef);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const { map, curPos } = getMapboxGL(mapRef, mapboxToken);
   return (
     <>
       <div className={mapClassName} ref={mapRef} />

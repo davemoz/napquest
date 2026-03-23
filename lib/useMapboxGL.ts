@@ -2,15 +2,17 @@ import { RefObject, useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { Map } from "mapbox-gl";
 
-mapboxgl.accessToken = process.env.MAP_BOX_API_KEY!;
-
 export default function useMapboxGL(
-  containerRef?: RefObject<null> | undefined
+  containerRef: RefObject<HTMLDivElement | null> | undefined,
+  mapboxToken: string | undefined
 ) {
   const mapInstanceRef = useRef<Map | null>(null);
   const [curPos, setCurPos] = useState<number[] | undefined>();
 
   useEffect(() => {
+    if (!mapboxToken) return;
+    mapboxgl.accessToken = mapboxToken;
+
     const container = containerRef?.current;
     if (container) {
       mapInstanceRef.current = new mapboxgl.Map({
