@@ -38,6 +38,15 @@ export default function useMapboxGL(
 
         mapInstanceRef.current.on("load", () => {
           geolocate.trigger();
+          
+          // Fallback: request geolocation directly in case Mapbox control fails
+          if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+              setCurPos((prev) => prev || [pos.coords.longitude, pos.coords.latitude]);
+            }, (err) => {
+              console.warn("Geolocation fallback failed:", err);
+            });
+          }
         });
       }
 
