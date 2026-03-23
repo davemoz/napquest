@@ -20,10 +20,12 @@ const CurrentLocationInput = ({
   curPos,
   manualStart,
   onStartSelect,
+  mapboxToken,
 }: {
   curPos: number[] | undefined;
   manualStart?: SearchBoxFeatureSuggestion;
   onStartSelect?: (res: SearchBoxRetrieveResponse) => void;
+  mapboxToken: string;
 }) => {
   if (curPos) {
     return (
@@ -64,7 +66,7 @@ const CurrentLocationInput = ({
         </div>
         <div className={styles["search-box-container"]}>
           <SearchBox
-            accessToken={process.env.MAP_BOX_API_KEY!}
+            accessToken={mapboxToken}
             onRetrieve={onStartSelect}
             placeholder="Enter start location"
             value={manualStart ? manualStart.properties.name : ""}

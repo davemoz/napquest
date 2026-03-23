@@ -22,9 +22,11 @@ import classNames from "classnames";
 export default function DirectionsForm({
   map,
   curPos,
+  mapboxToken,
 }: {
   map: any;
   curPos?: number[];
+  mapboxToken: string;
 }) {
   const [manualStart, setManualStart] = useState<
     SearchBoxFeatureSuggestion | undefined
@@ -224,6 +226,7 @@ export default function DirectionsForm({
         selectedRouteIndex={selectedRouteIndex}
         onRouteSelect={setSelectedRouteIndex}
         handleRetrieve={handleRetrieve}
+        mapboxToken={mapboxToken}
       />
 
       {/* selectedRoute && (

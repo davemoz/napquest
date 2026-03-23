@@ -43,6 +43,7 @@ export default function DragAndDropRoutes({
   selectedRouteIndex,
   onRouteSelect,
   handleRetrieve,
+  mapboxToken,
 }: {
   route: SearchBoxFeatureSuggestion[];
   onDelete: (id: string) => void;
@@ -55,6 +56,7 @@ export default function DragAndDropRoutes({
   selectedRouteIndex?: number;
   onRouteSelect?: (index: number) => void;
   handleRetrieve?: (res: SearchBoxRetrieveResponse) => void;
+  mapboxToken: string;
 }) {
   const handleRemoveItem = (id: string) => {
     onDelete(id);
@@ -99,6 +101,7 @@ export default function DragAndDropRoutes({
               curPos={curPos}
               manualStart={manualStart}
               onStartSelect={onStartSelect}
+              mapboxToken={mapboxToken}
             />
             {route.length > 0 && (
               <>
@@ -121,7 +124,7 @@ export default function DragAndDropRoutes({
         })}
       >
         <SearchBox
-          accessToken={process.env.MAP_BOX_API_KEY!}
+          accessToken={mapboxToken}
           map={map}
           onRetrieve={handleRetrieve}
           placeholder={

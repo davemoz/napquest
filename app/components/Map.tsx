@@ -22,7 +22,7 @@ const Map = ({
       <div className={mapClassName} ref={mapRef} />
       <div className={sidebarClassName}>
         <Branding />
-        <DirectionsForm map={map} curPos={curPos} />
+        <DirectionsForm map={map} curPos={curPos} mapboxToken={mapboxToken} />
       </div>
     </>
   );
