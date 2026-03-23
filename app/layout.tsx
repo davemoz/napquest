@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
 import { Provider } from "./components/ui/provider";
-import { Analytics } from "@vercel/analytics/next";
 import { SettingsProvider } from "./context/SettingsContext";
 
 import "./globals.scss";
@@ -30,7 +29,6 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <Analytics />
         <Provider>
           <SettingsProvider>{children}</SettingsProvider>
         </Provider>

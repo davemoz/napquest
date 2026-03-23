@@ -3,11 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect' dotenvx run -f .env.local -- next dev",
     "build": "dotenvx run -- next build",
+    "dev": "NODE_OPTIONS='--inspect' dotenvx run -f .env.local -- next dev",
     "start": "dotenvx run -f .env -- next start",
     "lint": "dotenvx run -- next lint",
-    "test": "vitest"
+    "test": "vitest",
+    "cf-build": "dotenvx run -- opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
@@ -19,11 +24,11 @@
     "@emotion/react": "^11.14.0",
     "@mapbox/search-js-core": "^1.5.1",
     "@mapbox/search-js-react": "^1.5.1",
+    "@opennextjs/cloudflare": "^1.17.2",
     "@react-stately/data": "^3.15.0",
     "@turf/turf": "^7.3.1",
-    "@vercel/analytics": "^1.6.1",
     "mapbox-gl": "3.17.0",
-    "next": "16.1.1",
+    "next": "16.0.10",
     "react": "^19.2.3",
     "react-aria-components": "1.14.0",
     "react-dom": "^19.2.3",
@@ -42,7 +47,8 @@
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "wrangler": "^4.76.0"
   },
   "engines": {
     "node": "22.x"
