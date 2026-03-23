@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "dotenvx run -- next build",
+    "build": "next build",
     "dev": "NODE_OPTIONS='--inspect' dotenvx run -f .env.local -- next dev",
-    "start": "dotenvx run -f .env -- next start",
-    "lint": "dotenvx run -- next lint",
+    "start": "next start",
+    "lint": "next lint",
     "test": "vitest",
     "cf-build": "opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
